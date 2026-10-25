@@ -8,8 +8,9 @@
  *   prog : nom du programme, en general argv[0].
  */
 static void usage(const char *prog) {
-  fprintf(stderr, "Usage : %s <hote> <port_debut> <port_fin> [-t timeout_ms]\n",
-      prog);
+  fprintf(stderr,
+      "Usage : %s <hote> <port_debut> <port_fin> [-t timeout_ms] "
+      "[--allow-public]\n", prog);
 }
 
 /*
@@ -36,21 +37,31 @@ static int parse_int(const char *s, int min, int max, int *out) {
 }
 
 int parse_args(int argc, char **argv, scan_config *cfg) {
-  if (argc != 4 && argc != 6) {
+  if (argc < 4) {
     usage(argv[0]);
     return -1;
   }
   cfg->host = argv[1];
   cfg->timeout_ms = 500;
+  cfg->allow_public = 0;
   if (parse_int(argv[2], 1, 65535, &cfg->port_start) < 0
       || parse_int(argv[3], 1, 65535, &cfg->port_end) < 0
       || cfg->port_start > cfg->port_end) {
     fprintf(stderr, "Plage de ports invalide (1-65535, debut <= fin)\n");
     return -1;
   }
-  if (argc == 6) {
-    if (strcmp(argv[4], "-t") != 0
-        || parse_int(argv[5], 10, 10000, &cfg->timeout_ms) < 0) {
+  for (int i = 4; i < argc; i++) {
+    if (strcmp(argv[i], "-t") == 0) {
+      if (i + 1 >= argc
+          || parse_int(argv[i + 1], 10, 10000, &cfg->timeout_ms) < 0) {
+        fprintf(stderr, "Timeout invalide (10-10000 ms)\n");
+        return -1;
+      }
+      i++;
+    } else if (strcmp(argv[i], "--allow-public") == 0) {
+      cfg->allow_public = 1;
+    } else {
+      fprintf(stderr, "Option inconnue : %s\n", argv[i]);
       usage(argv[0]);
       return -1;
     }

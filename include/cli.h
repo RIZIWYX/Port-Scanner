@@ -13,18 +13,25 @@
  *   port_end   : dernier port scanne, dans [port_start, 65535].
  *   timeout_ms : delai maximal d'attente par port, en millisecondes,
  *                dans [10, 10000]. Vaut 500 par defaut.
+ *   allow_public : 1 si l'option --allow-public est donnee, autorisant
+ *                  une cible hors des plages locales et privees ; 0 par
+ *                  defaut.
  */
 typedef struct {
   const char *host;
   int port_start;
   int port_end;
   int timeout_ms;
+  int allow_public;
 } scan_config;
 
 /*
  * parse_args : analyse les arguments du programme et remplit *cfg.
  *
- * Syntaxe attendue : <hote> <port_debut> <port_fin> [-t timeout_ms]
+ * Syntaxe attendue :
+ *   <hote> <port_debut> <port_fin> [-t timeout_ms] [--allow-public]
+ * Les options sont facultatives et peuvent etre donnees dans n'importe
+ * quel ordre apres les trois arguments obligatoires.
  *
  * Parametres :
  *   argc, argv : arguments recus par main.
