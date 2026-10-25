@@ -7,7 +7,7 @@
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <poll.h>
-#include "scanner.h"
+#include "net.h"
 
 int resolve_host(const char *host, struct sockaddr_storage *addr,
     socklen_t *len) {

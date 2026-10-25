@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "scanner.h"
+#include "cli.h"
 
 static void usage(const char *prog) {
   fprintf(stderr, "Usage : %s <hote> <port_debut> <port_fin> [-t timeout_ms]\n",

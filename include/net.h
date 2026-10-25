@@ -1,16 +1,7 @@
+#ifndef NET_H
+#define NET_H
+
 #include <sys/socket.h>
-
-#ifndef SCANNER_H
-#define SCANNER_H
-
-typedef struct {
-  const char *host;
-  int port_start;
-  int port_end;
-  int timeout_ms;
-} scan_config;
-
-int parse_args(int argc, char **argv, scan_config *cfg);
 
 typedef enum {
   PORT_OPEN, PORT_CLOSED, PORT_FILTERED, PORT_ERROR

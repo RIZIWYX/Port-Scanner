@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include "scanner.h"
+#include "cli.h"
+#include "net.h"
 
 int main(int argc, char **argv) {
   scan_config cfg;
