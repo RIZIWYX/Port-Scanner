@@ -28,10 +28,13 @@
  *                dure donc au plus environ 2 * timeout_ms.
  *   buf        : tampon recevant la banniere, terminee par '\0'.
  *   size       : taille de buf, au moins 2.
+ *   is_http    : si non NULL, recoit 1 si la banniere provient d'une
+ *                reponse HTTP, 0 sinon.
  *
  * Retour : la longueur de la banniere ecrite dans buf, ou 0 si le service
  * n'a rien envoye (buf contient alors la chaine vide).
  */
-size_t grab_banner(int fd, int timeout_ms, char *buf, size_t size);
+size_t grab_banner(int fd, int timeout_ms, char *buf, size_t size,
+    int *is_http);
 
 #endif

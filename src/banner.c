@@ -89,9 +89,13 @@ static const char *http_server(const char *resp) {
   return NULL;
 }
 
-size_t grab_banner(int fd, int timeout_ms, char *buf, size_t size) {
+size_t grab_banner(int fd, int timeout_ms, char *buf, size_t size,
+    int *is_http) {
   char raw[RAW_SIZE];
   buf[0] = '\0';
+  if (is_http != NULL) {
+    *is_http = 0;
+  }
   /* 1. Le service parle-t-il en premier ? */
   if (recv_timeout(fd, timeout_ms, raw, sizeof raw) == 0) {
     /* 2. Sinon, sonde HTTP */
@@ -103,6 +107,9 @@ size_t grab_banner(int fd, int timeout_ms, char *buf, size_t size) {
   }
   /* 3. Extraction de la ligne utile */
   if (strncmp(raw, "HTTP/", 5) == 0) {
+    if (is_http != NULL) {
+      *is_http = 1;
+    }
     const char *server = http_server(raw);
     if (server != NULL) {
       return copy_line(server, buf, size);

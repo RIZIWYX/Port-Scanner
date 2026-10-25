@@ -4,11 +4,12 @@
 #include "net.h"
 #include "guard.h"
 #include "banner.h"
+#include "service.h"
 #include <unistd.h>
 
 /*
  * main : scanne une plage de ports TCP d'une cible et affiche les ports
- * ouverts avec la banniere du service qui y repond, puis le nombre de ports ouverts et filtres.
+ * ouverts avec le service identifie et sa version, puis le nombre de ports ouverts et filtres.
  *
  * Par securite, une cible hors des plages locales et privees est refusee,
  * sauf si l'option --allow-public est donnee.
@@ -44,7 +45,7 @@ int main(int argc, char **argv) {
   }
   printf("Scan de %s (%s), ports %d-%d\n\n", cfg.host, ip, cfg.port_start,
       cfg.port_end);
-  printf("%-8s %-8s %s\n", "PORT", "ETAT", "BANNIERE");
+  printf("%-8s %-8s %-12s %s\n", "PORT", "ETAT", "SERVICE", "VERSION");
   int open_count = 0;
   int filtered_count = 0;
   for (int p = cfg.port_start; p <= cfg.port_end; p++) {
@@ -52,9 +53,14 @@ int main(int argc, char **argv) {
     int fd = tcp_connect(&addr, len, p, cfg.timeout_ms, &st);
     if (st == PORT_OPEN) {
       char banner[128];
-      grab_banner(fd, cfg.timeout_ms, banner, sizeof banner);
+      char name[32];
+      char version[128];
+      int is_http;
+      grab_banner(fd, cfg.timeout_ms, banner, sizeof banner, &is_http);
       close(fd);
-      printf("%-8d %-8s %s\n", p, state_str(st), banner);
+      identify_service(p, banner, is_http, name, sizeof name, version,
+          sizeof version);
+      printf("%-8d %-8s %-12s %s\n", p, state_str(st), name, version);
       open_count++;
     } else if (st == PORT_FILTERED) {
       filtered_count++;
