@@ -31,6 +31,8 @@ PORT     ETAT     SERVICE      VERSION
 - [Comparaison avec nmap](#comparaison-avec-nmap)
 - [Limites et pistes d'amélioration](#limites-et-pistes-damélioration)
 
+Documentation technique détaillée (architecture, algorithmes, référence de chaque fonction, tests) : [doc/](doc/README.md).
+
 ## Compilation
 
 Prérequis : Linux (ou tout système POSIX), `gcc`, `make`. Python 3 pour les tests.
@@ -173,7 +175,7 @@ main ─► cli : parse_args
 make test
 ```
 
-Le script lance de faux services sur `127.0.0.1` (FTP, SSH, SMTP, POP3, IMAP, HTTP, un service muet et un service binaire), exécute le scanner et vérifie **25 cas** :
+Le script lance de faux services sur `127.0.0.1` (FTP, SSH, SMTP, POP3, IMAP, HTTP, un service muet et un service binaire), exécute le scanner et vérifie **26 cas** :
 
 - chaque service est détecté et correctement identifié, avec sa version ;
 - la bannière binaire est nettoyée, le service muet est bien vu ouvert ;
