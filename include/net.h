@@ -42,6 +42,26 @@ int resolve_host(const char *host, struct sockaddr_storage *addr,
     socklen_t *len);
 
 /*
+ * tcp_connect : ouvre une connexion TCP non bloquante vers un port, en
+ * attendant au plus timeout_ms.
+ *
+ * Parametres :
+ *   addr, len  : adresse de la cible, obtenue par resolve_host (non
+ *                modifiee : le port est place dans une copie).
+ *   port       : port a contacter, dans [1, 65535].
+ *   timeout_ms : duree maximale d'attente, en millisecondes.
+ *   state      : recoit l'etat du port (voir port_state), ne doit pas
+ *                etre NULL.
+ *
+ * Retour :
+ *   le descripteur du socket connecte si *state vaut PORT_OPEN ; il reste
+ *   en mode non bloquant et l'appelant doit le fermer avec close.
+ *   -1 dans tous les autres cas ; aucun socket ne reste alors ouvert.
+ */
+int tcp_connect(const struct sockaddr_storage *addr, socklen_t len,
+    int port, int timeout_ms, port_state *state);
+
+/*
  * scan_port : tente une connexion TCP sur un port et en deduit son etat.
  *
  * Parametres :
