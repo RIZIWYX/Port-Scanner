@@ -10,7 +10,7 @@
 static void usage(const char *prog) {
   fprintf(stderr,
       "Usage : %s <hote> <port_debut> <port_fin> [-t timeout_ms] "
-      "[--allow-public]\n", prog);
+      "[-c parallele] [--allow-public]\n", prog);
 }
 
 /*
@@ -43,6 +43,7 @@ int parse_args(int argc, char **argv, scan_config *cfg) {
   }
   cfg->host = argv[1];
   cfg->timeout_ms = 500;
+  cfg->parallel = 100;
   cfg->allow_public = 0;
   if (parse_int(argv[2], 1, 65535, &cfg->port_start) < 0
       || parse_int(argv[3], 1, 65535, &cfg->port_end) < 0
@@ -55,6 +56,13 @@ int parse_args(int argc, char **argv, scan_config *cfg) {
       if (i + 1 >= argc
           || parse_int(argv[i + 1], 10, 10000, &cfg->timeout_ms) < 0) {
         fprintf(stderr, "Timeout invalide (10-10000 ms)\n");
+        return -1;
+      }
+      i++;
+    } else if (strcmp(argv[i], "-c") == 0) {
+      if (i + 1 >= argc
+          || parse_int(argv[i + 1], 1, 1000, &cfg->parallel) < 0) {
+        fprintf(stderr, "Parallelisme invalide (1-1000)\n");
         return -1;
       }
       i++;

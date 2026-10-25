@@ -26,6 +26,9 @@ clean:
 
 re: clean all
 
+test: $(TARGET)
+	bash tests/run_tests.sh
+
 -include $(DEPS)
 
-.PHONY: all clean re
+.PHONY: all clean re test
