@@ -2,6 +2,13 @@
 #include "cli.h"
 #include "net.h"
 
+/*
+ * main : scanne une plage de ports TCP d'une cible et affiche les ports
+ * ouverts, puis le nombre de ports ouverts et filtres.
+ *
+ * Retour : 0 si le scan a eu lieu, 1 si les arguments sont invalides ou
+ * si l'hote ne peut pas etre resolu.
+ */
 int main(int argc, char **argv) {
   scan_config cfg;
   if (parse_args(argc, argv, &cfg) < 0) {

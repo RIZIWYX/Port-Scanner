@@ -27,6 +27,15 @@ int resolve_host(const char *host, struct sockaddr_storage *addr,
   return 0;
 }
 
+/*
+ * set_port : ecrit un numero de port dans une adresse IPv4 ou IPv6.
+ *
+ * Parametres :
+ *   addr : adresse a modifier ; sa famille (ss_family) doit etre AF_INET
+ *          ou AF_INET6.
+ *   port : port en ordre de la machine, converti en ordre reseau par
+ *          htons avant ecriture.
+ */
 static void set_port(struct sockaddr_storage *addr, int port) {
   if (addr->ss_family == AF_INET) {
     ((struct sockaddr_in *) addr)->sin_port = htons(port);

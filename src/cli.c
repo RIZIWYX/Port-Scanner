@@ -3,11 +3,28 @@
 #include <string.h>
 #include "cli.h"
 
+/*
+ * usage : affiche la syntaxe d'appel du programme sur stderr.
+ *   prog : nom du programme, en general argv[0].
+ */
 static void usage(const char *prog) {
   fprintf(stderr, "Usage : %s <hote> <port_debut> <port_fin> [-t timeout_ms]\n",
       prog);
 }
 
+/*
+ * parse_int : convertit une chaine en entier et verifie ses bornes.
+ *
+ * Parametres :
+ *   s        : chaine a convertir, en base 10.
+ *   min, max : bornes inclusives acceptees.
+ *   out      : recoit la valeur convertie en cas de succes.
+ *
+ * Retour :
+ *   0 si s est entierement un entier compris dans [min, max].
+ *   -1 si s est vide, contient autre chose qu'un entier (ex. "80abc")
+ *   ou sort des bornes ; *out n'est alors pas modifie.
+ */
 static int parse_int(const char *s, int min, int max, int *out) {
   char *end;
   long v = strtol(s, &end, 10);
