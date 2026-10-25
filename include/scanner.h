@@ -20,7 +20,7 @@ int resolve_host(const char *host, struct sockaddr_storage *addr,
     socklen_t *len);
 
 port_state scan_port(const struct sockaddr_storage *addr, socklen_t len,
-    int port);
+    int port, int timeout_ms);
 
 const char *state_str(port_state s);
 

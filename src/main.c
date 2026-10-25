@@ -14,13 +14,16 @@ int main(int argc, char **argv) {
   printf("Scan de %s, ports %d-%d\n\n", cfg.host, cfg.port_start, cfg.port_end);
   printf("%-8s %s\n", "PORT", "ETAT");
   int open_count = 0;
+  int filtered_count = 0;
   for (int p = cfg.port_start; p <= cfg.port_end; p++) {
-    port_state st = scan_port(&addr, len, p);
+    port_state st = scan_port(&addr, len, p, cfg.timeout_ms);
     if (st == PORT_OPEN) {
       printf("%-8d %s\n", p, state_str(st));
       open_count++;
+    } else if (st == PORT_FILTERED) {
+      filtered_count++;
     }
   }
-  printf("\n%d port(s) ouvert(s)\n", open_count);
+  printf("\n%d port(s) ouvert(s), %d filtre(s)\n", open_count, filtered_count);
   return 0;
 }

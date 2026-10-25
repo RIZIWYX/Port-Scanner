@@ -5,6 +5,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
+#include <poll.h>
 #include "scanner.h"
 
 int resolve_host(const char *host, struct sockaddr_storage *addr,
@@ -34,22 +36,52 @@ static void set_port(struct sockaddr_storage *addr, int port) {
 }
 
 port_state scan_port(const struct sockaddr_storage *base, socklen_t len,
-    int port) {
+    int port, int timeout_ms) {
   struct sockaddr_storage addr = *base;
   set_port(&addr, port);
   int fd = socket(addr.ss_family, SOCK_STREAM, 0);
   if (fd < 0) {
     return PORT_ERROR;
   }
+  /* 1. Passage en non bloquant */
+  int flags = fcntl(fd, F_GETFL, 0);
+  if (flags < 0 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0) {
+    close(fd);
+    return PORT_ERROR;
+  }
+  /* 2. connect rend la main immediatement */
   port_state st;
   if (connect(fd, (struct sockaddr *) &addr, len) == 0) {
-    st = PORT_OPEN;
+    st = PORT_OPEN;                       /* connexion locale instantanee */
   } else if (errno == ECONNREFUSED) {
     st = PORT_CLOSED;
-  } else if (errno == ETIMEDOUT || errno == EHOSTUNREACH) {
-    st = PORT_FILTERED;
-  } else {
+  } else if (errno != EINPROGRESS) {
     st = PORT_ERROR;
+  } else {
+    /* 3. Attente bornee */
+    struct pollfd pfd = { .fd = fd, .events = POLLOUT };
+    int rc = poll(&pfd, 1, timeout_ms);
+    if (rc == 0) {
+      st = PORT_FILTERED;               /* aucune reponse dans le delai */
+    } else if (rc < 0) {
+      st = PORT_ERROR;
+    } else {
+      /* 4. Resultat reel de la connexion */
+      int err = 0;
+      socklen_t elen = sizeof err;
+      if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &elen) < 0) {
+        st = PORT_ERROR;
+      } else if (err == 0) {
+        st = PORT_OPEN;
+      } else if (err == ECONNREFUSED) {
+        st = PORT_CLOSED;
+      } else if (err == EHOSTUNREACH || err == ENETUNREACH
+          || err == ETIMEDOUT) {
+        st = PORT_FILTERED;
+      } else {
+        st = PORT_ERROR;
+      }
+    }
   }
   close(fd);
   return st;
