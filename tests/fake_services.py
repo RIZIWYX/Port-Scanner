@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Faux services TCP sur 127.0.0.1, utilises par run_tests.sh.
+"""Faux services TCP sur 127.0.0.1 (et ::1 si IPv6 est disponible),
+utilises par run_tests.sh.
 
 Chaque service imite la banniere d'un vrai protocole, pour verifier que le
 scanner detecte le port et identifie le service sans avoir a installer de
@@ -26,10 +27,10 @@ HTTP_RESPONSE = (b"HTTP/1.0 200 OK\r\nServer: FakeHTTP/1.0\r\n"
                  b"Content-Length: 0\r\n\r\n")
 
 
-def listen(port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+def listen(port, family=socket.AF_INET, addr="127.0.0.1"):
+    s = socket.socket(family, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("127.0.0.1", port))
+    s.bind((addr, port))
     s.listen(64)
     return s
 
@@ -71,6 +72,14 @@ def main():
     except OSError as e:
         print(f"fake_services: {e}", file=sys.stderr)
         sys.exit(1)
+    # Memes services sur ::1 : sur certaines machines (dont GitHub Actions),
+    # "localhost" se resout d'abord en ::1. Ignore si IPv6 est indisponible.
+    try:
+        sockets += [(listen(p, socket.AF_INET6, "::1"), handle, b)
+                    for p, b in SERVICES.items()]
+        sockets.append((listen(HTTP_PORT, socket.AF_INET6, "::1"), handle_http))
+    except OSError:
+        pass
     for sock, handler, *args in sockets:
         threading.Thread(target=serve, args=(sock, handler, *args),
                          daemon=True).start()
