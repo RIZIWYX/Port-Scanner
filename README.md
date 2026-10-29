@@ -5,6 +5,8 @@
 ![Plateforme](https://img.shields.io/badge/plateforme-Linux%20%7C%20POSIX-lightgrey)
 [![Licence MIT](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
+![Démo : scan de faux services en local, garde-fou et tests](doc/demo.gif)
+
 Scanner de ports TCP écrit en C avec l'API sockets POSIX. Pour une machine et une plage de ports donnés, il indique quels ports sont **ouverts**, **fermés** ou **filtrés**, récupère la **bannière** des services qui répondent et en déduit le **service** et sa **version**.
 
 > **Cadre légal.** Scanner une machine sans autorisation est interdit en France (article 323-1 du Code pénal) et dans la plupart des pays. Cet outil est destiné à vos propres machines ou à des environnements que vous avez l'autorisation de tester. Par défaut, il **refuse** toute cible en dehors des adresses locales et privées (voir [Garde-fou](#garde-fou)).
